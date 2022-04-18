@@ -6,6 +6,7 @@ const MOVIES_PER_PAGE = 12
 const movies = []
 let filterMovies = []
 let page = 1
+let renderMode = 'card-mode'
 const dataPanel = document.querySelector('#data-panel')
 const searchForm = document.querySelector('#search-form')
 const searchInput = document.querySelector('#search-input')
@@ -46,8 +47,10 @@ searchForm.addEventListener('click', function onSearchFormSubmitted(event) {
 
 renderIcon.addEventListener('click', function cilckOnIcon(event) {
   if (event.target.matches('.fa-th')) {
+    renderMode = 'card-mode'
     renderMovieList(getMoviesByPage(page))
   } else if (event.target.matches('.fa-bars')) {
+    renderMode = 'list-mode'
     renderByList(getMoviesByPage(page))
   }
 })
@@ -59,26 +62,30 @@ paginator.addEventListener('click', function onClickPaginator(event) {
 })
 
 function renderMovieList(data) {
-  let rawHTML = ''
-  data.forEach(item => {
-    rawHTML += `
-    <div class="col-sm-3">
-        <div class="card mb-2">
-          <div class="card">
-            <img src=${POSTER_URL + item.image} class="card-img-top" alt="Movie Poster">
-            <div class="card-body" style="height: 80px;">
-              <h5 class="card-title">${item.title}</h5>
-            </div>
-            <div class="card-footer">
-              <button type="button" class="btn btn-primary btn-show-movie" data-bs-toggle="modal" data-bs-target="#movie-modal" data-id="${item.id}">More</button>
-              <button type="button" class="btn btn-info btn-add-favorite" data-id="${item.id}">+</button>
+  if (renderMode === 'card-mode') {
+    let rawHTML = ''
+    data.forEach(item => {
+      rawHTML += `
+      <div class="col-sm-3">
+          <div class="card mb-2">
+            <div class="card">
+              <img src=${POSTER_URL + item.image} class="card-img-top" alt="Movie Poster">
+              <div class="card-body" style="height: 80px;">
+                <h5 class="card-title">${item.title}</h5>
+              </div>
+              <div class="card-footer">
+                <button type="button" class="btn btn-primary btn-show-movie" data-bs-toggle="modal" data-bs-target="#movie-modal" data-id="${item.id}">More</button>
+                <button type="button" class="btn btn-info btn-add-favorite" data-id="${item.id}">+</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    `
-  })
-  dataPanel.innerHTML = rawHTML
+      `
+    })
+    dataPanel.innerHTML = rawHTML
+  } else if (renderMode === 'list-mode') {
+    renderByList(data)
+  }
 }
 
 function showMovieModal(id) {
