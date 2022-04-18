@@ -2,8 +2,15 @@ const BASE_URL = 'https://movie-list.alphacamp.io'
 const INDEX_URL = BASE_URL + '/api/v1/movies/'
 const POSTER_URL = BASE_URL + '/posters/'
 
+const MOVIES_PER_PAGE = 12
 const dataPanel = document.querySelector('#data-panel')
 const movies = JSON.parse(localStorage.getItem('favoriteMovies')) || []
+
+paginator.addEventListener('click', function onClickPaginator(event) {
+  if (event.target.tagName !== 'A') return
+  page = event.target.dataset.page
+  renderMovieList(getMoviesByPage(page))
+})
 
 function renderMovieList(data) {
   let rawHTML = ''
@@ -13,7 +20,7 @@ function renderMovieList(data) {
         <div class="card mb-2">
           <div class="card">
             <img src=${POSTER_URL + item.image} class="card-img-top" alt="Movie Poster">
-            <div class="card-body" style="height: 80px;">>
+            <div class="card-body" style="height: 80px;">
               <h5 class="card-title">${item.title}</h5>
             </div>
             <div class="card-footer">
@@ -66,4 +73,20 @@ dataPanel.addEventListener('click', function onPanelClick(event) {
   }
 })
 
-renderMovieList(movies)
+function getMoviesByPage(page) {
+  const startIndex = (page - 1) * 12
+  const data = movies
+  return data.slice(startIndex, startIndex + MOVIES_PER_PAGE)
+}
+
+function renderPaginator(amount) {
+  const numberOfPages = Math.ceil(amount / MOVIES_PER_PAGE)
+  let rawHTML = ''
+  for (let p = 1; p <= numberOfPages; p++) {
+    rawHTML += `<li class="page-item"><a class="page-link" href="#" data-page="${p}">${p}</a></li>`
+  }
+  paginator.innerHTML = rawHTML
+}
+
+renderMovieList(getMoviesByPage(1))
+renderPaginator(movies.length)

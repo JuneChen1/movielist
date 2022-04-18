@@ -17,6 +17,7 @@ axios.get(INDEX_URL)
   movies.push(...response.data.results)
   renderMovieList(getMoviesByPage(1))
   renderPaginator(movies.length)
+  console.log(page)
 }).catch(error => {
   console.log(error)
 })
@@ -54,7 +55,6 @@ renderIcon.addEventListener('click', function cilckOnIcon(event) {
 paginator.addEventListener('click', function onClickPaginator(event) {
   if (event.target.tagName !== 'A') return
   page = event.target.dataset.page
-  console.log(page)
   renderMovieList(getMoviesByPage(page))
 })
 
@@ -144,8 +144,8 @@ function renderByList(data) {
 function renderPaginator (amount) {
   const numberOfPages = Math.ceil(amount / MOVIES_PER_PAGE)
   let rawHTML = ''
-  for (page = 1; page <= numberOfPages; page++) {
-    rawHTML += `<li class="page-item"><a class="page-link" href="#" data-page="${page}">${page}</a></li>`
+  for (let p = 1; p <= numberOfPages; p++) {
+    rawHTML += `<li class="page-item"><a class="page-link" href="#" data-page="${p}">${p}</a></li>`
   }
   paginator.innerHTML = rawHTML
 }
