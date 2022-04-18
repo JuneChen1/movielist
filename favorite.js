@@ -5,11 +5,21 @@ const POSTER_URL = BASE_URL + '/posters/'
 const MOVIES_PER_PAGE = 12
 const dataPanel = document.querySelector('#data-panel')
 const movies = JSON.parse(localStorage.getItem('favoriteMovies')) || []
+let page = 1
 
 paginator.addEventListener('click', function onClickPaginator(event) {
   if (event.target.tagName !== 'A') return
   page = event.target.dataset.page
   renderMovieList(getMoviesByPage(page))
+})
+
+dataPanel.addEventListener('click', function onPanelClick(event) {
+  if (event.target.matches('.btn-show-movie')) {
+    showMovieModal(Number(event.target.dataset.id))
+  } else if (event.target.matches('.btn-remove-favorite')) {
+    removeFromFavorite(Number(event.target.dataset.id))
+    renderPaginator(movies.length)
+  }
 })
 
 function renderMovieList(data) {
@@ -62,16 +72,8 @@ function removeFromFavorite(id) {
   
   movies.splice(movieIndex, 1)
   localStorage.setItem('favoriteMovies', JSON.stringify(movies))
-  renderMovieList(movies)
+  renderMovieList(getMoviesByPage(page))
 }
-
-dataPanel.addEventListener('click', function onPanelClick(event) {
-  if (event.target.matches('.btn-show-movie')) {
-    showMovieModal(Number(event.target.dataset.id))
-  } else if (event.target.matches('.btn-remove-favorite')) {
-    removeFromFavorite(Number(event.target.dataset.id))
-  }
-})
 
 function getMoviesByPage(page) {
   const startIndex = (page - 1) * 12
