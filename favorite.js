@@ -4,8 +4,14 @@ const POSTER_URL = BASE_URL + '/posters/'
 
 const MOVIES_PER_PAGE = 12
 const dataPanel = document.querySelector('#data-panel')
+const searchForm = document.querySelector('#search-form')
+const searchInput = document.querySelector('#search-input')
+const renderIcon = document.querySelector('#render-icon')
+const paginator = document.querySelector('#paginator')
 const movies = JSON.parse(localStorage.getItem('favoriteMovies')) || []
 let page = 1
+let filterMovies = []
+let renderMode = 'card-mode'
 
 paginator.addEventListener('click', function onClickPaginator(event) {
   if (event.target.tagName !== 'A') return
@@ -22,10 +28,35 @@ dataPanel.addEventListener('click', function onPanelClick(event) {
   }
 })
 
+searchForm.addEventListener('click', function onSearchFormSubmitted(event) {
+  event.preventDefault()
+  const keyword = searchInput.value.trim().toLowerCase()
+
+  filterMovies = movies.filter(movie => movie.title.toLowerCase().includes(keyword))
+
+  if (filterMovies.length === 0) {
+    return alert('Cannot find movies with keyword: ' + keyword)
+  }
+
+  renderMovieList(getMoviesByPage(1))
+  renderPaginator(filterMovies.length)
+})
+
+renderIcon.addEventListener('click', function cilckOnIcon(event) {
+  if (event.target.matches('.fa-th')) {
+    renderMode = 'card-mode'
+    renderMovieList(getMoviesByPage(page))
+  } else if (event.target.matches('.fa-bars')) {
+    renderMode = 'list-mode'
+    renderByList(getMoviesByPage(page))
+  }
+})
+
 function renderMovieList(data) {
-  let rawHTML = ''
-  data.forEach(item => {
-    rawHTML += `
+  if (renderMode === 'card-mode') {
+    let rawHTML = ''
+    data.forEach(item => {
+      rawHTML += `
     <div class="col-sm-3">
         <div class="card mb-2">
           <div class="card">
@@ -41,8 +72,12 @@ function renderMovieList(data) {
         </div>
       </div>
     `
-  })
-  dataPanel.innerHTML = rawHTML
+    })
+    dataPanel.innerHTML = rawHTML
+  } else if (renderMode === 'list-mode') {
+    renderByList(data)
+  }
+  
 }
 
 function showMovieModal(id) {
@@ -77,8 +112,33 @@ function removeFromFavorite(id) {
 
 function getMoviesByPage(page) {
   const startIndex = (page - 1) * 12
-  const data = movies
+  const data = filterMovies.length ? filterMovies : movies
   return data.slice(startIndex, startIndex + MOVIES_PER_PAGE)
+}
+
+function renderByList(data) {
+  let rawHTML = `
+  <table class="table">
+    <tbody style="border-top: 1px solid #C4C4C4;">
+  `
+  data.forEach(item => {
+    rawHTML += `
+    <tr>
+      <td style="width: 70%;">${item.title}</td>
+      <td>
+        <button type="button" class="btn btn-primary btn-show-movie" data-bs-toggle="modal" data-bs-target="#movie-modal" data-id="${item.id}">More</button>
+        <button type="button" class="btn btn-info btn-add-favorite" data-id="${item.id}">+</button>
+      </td>
+    </tr>
+    `
+  })
+
+  rawHTML += `
+    </tbody>
+  </table>
+  `
+
+  dataPanel.innerHTML = rawHTML
 }
 
 function renderPaginator(amount) {
@@ -90,5 +150,5 @@ function renderPaginator(amount) {
   paginator.innerHTML = rawHTML
 }
 
-renderMovieList(getMoviesByPage(1))
+renderMovieList(getMoviesByPage(page))
 renderPaginator(movies.length)

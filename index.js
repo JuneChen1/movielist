@@ -16,7 +16,7 @@ const paginator = document.querySelector('#paginator')
 axios.get(INDEX_URL)
 .then(response => {
   movies.push(...response.data.results)
-  renderMovieList(getMoviesByPage(1))
+  renderMovieList(getMoviesByPage(page))
   renderPaginator(movies.length)
   console.log(page)
 }).catch(error => {
@@ -131,7 +131,7 @@ function renderByList(data) {
   data.forEach(item => {
     rawHTML += `
     <tr>
-      <td>${item.title}</td>
+      <td style="width: 70%;">${item.title}</td>
       <td>
         <button type="button" class="btn btn-primary btn-show-movie" data-bs-toggle="modal" data-bs-target="#movie-modal" data-id="${item.id}">More</button>
         <button type="button" class="btn btn-info btn-add-favorite" data-id="${item.id}">+</button>
